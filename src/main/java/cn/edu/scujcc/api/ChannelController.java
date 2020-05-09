@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.edu.scujcc.model.Channel;
+import cn.edu.scujcc.model.Comment;
 import cn.edu.scujcc.service.ChannelService;
 
 /**
@@ -27,7 +28,7 @@ import cn.edu.scujcc.service.ChannelService;
 @RestController
 @RequestMapping("/channel")
 public class ChannelController {
-	public static final Logger logger = LoggerFactory.getLogger(ChannelController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ChannelController.class);
 	@Autowired
 	private ChannelService service;
 	
@@ -67,7 +68,7 @@ public class ChannelController {
 	 */
 	@DeleteMapping("/{id}")
 	public ResponseEntity<String> deleteChannel(@PathVariable String id) {
-		System.out.println("即将删除频道，id=" + id);
+		logger.info("即将删除频道，id=" + id);
 		boolean result = service.deleteChannel(id);
 		if(result) {
 			return ResponseEntity.ok().body("删除成功");
@@ -83,7 +84,7 @@ public class ChannelController {
 	 */
 	@PostMapping
 	public Channel createChannel(@RequestBody Channel c) {
-		System.out.println("即将新建频道，频道数据：" + c);
+		logger.info("即将新建频道，频道数据：" + c);
 		Channel saved = service.createChannel(c);
 		return saved;
 	}
@@ -95,7 +96,7 @@ public class ChannelController {
 	 */
 	@PutMapping
 	public Channel updateChannel(@RequestBody Channel c) {
-		System.out.println("即将更新频道，频道数据：" + c);
+		logger.info("即将更新频道，频道数据：" + c);
 		Channel updated = service.updateChannel(c);
 		return updated;
 	}
@@ -112,5 +113,26 @@ public class ChannelController {
 	@GetMapping("/hot")
 	public List<Channel> getHotChannels(){
 		return service.searchLatestByCommentsChannel();
+	}
+	/**
+	 * 新增评论。
+	 * @param channelId 被评论的频道编号
+	 * @param comment 将要新增的评论对象
+	 */
+	@PostMapping("/{channelId}/comment")
+	public Channel addComment(@PathVariable String channelId,@RequestBody Comment comment) {
+		logger.debug("将为频道"+channelId+"新增一条评论："+comment);
+		//把评论保存到数据库
+		return service.addComment(channelId, comment);
+	}
+	/**
+	 * 获取指定频道的热门评论(前3条)
+	 * @param channelId 指定的频道编号
+	 * @return 3条热门评论的列表(数组)
+	 */
+	@GetMapping("/{channelId}/hotcomments")
+	public List<Comment> hotComments(@PathVariable String channelId) {
+		logger.debug("将获取频道"+channelId+"的热门评论...");
+		return service.hotComments(channelId);
 	}
 }

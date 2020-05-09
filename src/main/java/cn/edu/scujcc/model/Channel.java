@@ -1,5 +1,6 @@
 package cn.edu.scujcc.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -16,7 +17,14 @@ public class Channel {
 	private String quality;
 	private String url;
 	private List<Comment> comments;
+	private String cover;
 	
+	public String getCover() {
+		return cover;
+	}
+	public void setCover(String cover) {
+		this.cover = cover;
+	}
 	public String getId() {
 		return id;
 	}
@@ -41,11 +49,25 @@ public class Channel {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+	/**
+	 * 返回此频道的所有评论
+	 * @return
+	 */
 	public List<Comment> getComments() {
 		return comments;
 	}
 	public void setComments(List<Comment> comments) {
 		this.comments = comments;
+	}
+	/**
+	 * 向当前频道新增一个评论对象
+	 * @param comment
+	 */
+	public void addComment(Comment comment) {
+		if(this.comments == null) {
+			this.comments = new ArrayList<>();
+		}
+		this.comments.add(comment);
 	}
 	@Override
 	public int hashCode() {

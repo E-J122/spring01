@@ -1,14 +1,19 @@
 package cn.edu.scujcc.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cn.edu.scujcc.dao.ChannelRepository;
 import cn.edu.scujcc.model.Channel;
+import cn.edu.scujcc.model.Comment;
 
 /**提供频道相关业务逻辑。
  * @author dell
@@ -18,7 +23,7 @@ import cn.edu.scujcc.model.Channel;
 public class ChannelService {
 	@Autowired
 	private ChannelRepository repo;
-	
+	private static final Logger logger = LoggerFactory.getLogger(ChannelService.class);
 	
 	/**
 	 * 获取一个频道
@@ -76,9 +81,10 @@ public class ChannelService {
 			} else {
 				saved.setComments(c.getComments());
 			}
+			if (c.getCover() != null) {
+				saved.setCover(c.getCover());
+			}
 		}
-		//方法二：批量复制
-//		BeanUtils.copyProperties(c, saved);
 		return repo.save(saved);
 	}
 	
@@ -105,5 +111,49 @@ public class ChannelService {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime today = LocalDateTime.of(now.getYear(),now.getMonthValue(),now.getDayOfMonth(),0,0);
 		return repo.findByCommentsDtAfter(today);
+	}
+	/**
+	 * 向指定的频道添加一条评论
+	 * @param channelId 指定的频道编号
+	 * @param comment 将要新增的评论对象
+	 */
+	public Channel addComment(String channelId,Comment comment) {
+		Channel saved = getChannel(channelId);
+		if(saved != null) {
+			saved.addComment(comment);
+			return repo.save(saved);
+		}
+		return null;
+	}
+	/**
+	 * 返回指定频道的热门评论。
+	 * @param channelId 指定频道的编号
+	 * @return 热门评论的列表
+	 */
+	public List<Comment> hotComments(String channelId) {
+		List<Comment> result = new ArrayList<>();
+		Channel saved = getChannel(channelId);
+		logger.debug("频道"+channelId+"的数据是："+saved);
+		if(saved != null && saved.getComments() != null) {
+			//根据评论的star进行排序
+			saved.getComments().sort(new Comparator<Comment>() {
+				@Override
+				public int compare(Comment o1,Comment o2) {
+					if(o1.getStar() == o2.getStar()) {
+						return 0;
+					} else if(o1.getStar() < o2.getStar()) {
+						return 1;
+					} else {
+						return -1;
+					}
+				}
+			});
+			if(saved.getComments().size()>3) {
+				result = saved.getComments().subList(0, 3);
+			} else {
+				result = saved.getComments();
+			}
+		}
+		return result;
 	}
 }
