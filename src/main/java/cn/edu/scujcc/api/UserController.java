@@ -39,12 +39,13 @@ public class UserController {
 	}
 
 	@GetMapping("/login/{username}/{password}")
-	public Response login(@PathVariable("username") String username, @PathVariable("password") String password) {
-		Response result = new Response();
+	public Response<String> login(@PathVariable("username") String username, @PathVariable("password") String password) {
+		Response<String> result = new Response<>();
 		User saved = service.login(username, password);
 		if (saved != null) { //登录成功
+			String uid = service.checkIn(username);
 			result.setStatus(Response.STATUS_OK);
-			result.setData(saved);
+			result.setData(uid);
 		} else {//登录失败
 			logger.error("用户名或密码错误。");
 			result.setStatus(Response.STATUS_ERROR);

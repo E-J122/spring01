@@ -1,12 +1,19 @@
 package cn.edu.scujcc.model;
 
-public class Response {
+import java.io.Serializable;
+
+public class Response<T> implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3832395744261177423L;
 	public final static int STATUS_OK = 1;
-	public final static int STATUS_ERROR = -1;
+	public final static int STATUS_ERROR = 0;
 	
 	private int status;
 	private String message;
-	private User data;
+	private T data;
+	
 	public int getStatus() {
 		return status;
 	}
@@ -19,11 +26,10 @@ public class Response {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public User getData() {
+	public T getData() {
 		return data;
 	}
-	public void setData(User data) {
+	public void setData(T data) {
 		this.data = data;
 	}
-	
 }

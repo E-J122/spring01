@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import cn.edu.scujcc.dao.ChannelRepository;
@@ -30,7 +31,9 @@ public class ChannelService {
 	 * @param id
 	 * @return
 	 */
+	@Cacheable("channels")
 	public Channel getChannel(String channelId) {
+		logger.debug("准备从数据库读取频道" + channelId);
 		Optional<Channel> result = repo.findById(channelId);
 		if (result.isPresent()) {
 			return result.get();
@@ -43,7 +46,9 @@ public class ChannelService {
 	 * 获取所有频道
 	 * @return 频道List
 	 */
+	@Cacheable("channels")
 	public List<Channel> getAllChannels(){
+		logger.debug("准备从数据库读取所有频道信息...");
 		return repo.findAll();
 	}
 	

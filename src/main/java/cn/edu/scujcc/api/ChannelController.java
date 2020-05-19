@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.edu.scujcc.model.Channel;
 import cn.edu.scujcc.model.Comment;
 import cn.edu.scujcc.service.ChannelService;
+import cn.edu.scujcc.service.UserService;
 
 /**
  * 频道接口，提供客户端访问的入口
@@ -32,26 +34,33 @@ public class ChannelController {
 	@Autowired
 	private ChannelService service;
 	
+	@Autowired
+	private UserService userService;
+	
 	/**
 	 * 获取所有频道
 	 * @return 所有频道的JSON数组
 	 */
 	@GetMapping
-	public List<Channel> getAllChannels() {
-		logger.info("正在查找所有频道信息...");
+	public List<Channel> getAllChannels(@RequestHeader("token") String token) {
+		logger.info("正在读取所有频道信息...,token=" + token);
+		String user = userService.currentUser(token);
+		logger.info("当前用户是：" + user);
 		List<Channel> results = service.getAllChannels();
 		logger.debug("所有频道的数量是：" + results.size());
 		return results;
 	}
 	
 	/**
-	 * 获取一个指定频道的JSON数据
+	 * 获取一个指定频道的JSON数据(读取频道前必须先登录)
 	 * @param id 指定频道的编号
 	 * @return id对应频道的JSON数据
 	 */
 	@GetMapping("/{id}")
-	public Channel getChannel(@PathVariable String id) {
+	public Channel getChannel(@PathVariable String id,@RequestHeader("token") String token) {
 		logger.info("正在查找指定频道，id=" + id);
+		String user = userService.currentUser(token);
+		logger.debug("当前已登录用户是：" + user);
 		Channel c = service.getChannel(id);
 		if (c != null) {
 			return c;
@@ -120,8 +129,10 @@ public class ChannelController {
 	 * @param comment 将要新增的评论对象
 	 */
 	@PostMapping("/{channelId}/comment")
-	public Channel addComment(@PathVariable String channelId,@RequestBody Comment comment) {
-		logger.debug("将为频道"+channelId+"新增一条评论："+comment);
+	public Channel addComment(@RequestHeader("token") String token,@PathVariable String channelId,@RequestBody Comment comment) {
+		String username = userService.currentUser(token);
+		comment.setAuthor(username);
+		logger.debug(username + "即将评论频道："+channelId+",评论对象："+comment);
 		//把评论保存到数据库
 		return service.addComment(channelId, comment);
 	}

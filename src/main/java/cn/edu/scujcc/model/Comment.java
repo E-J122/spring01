@@ -1,5 +1,6 @@
 package cn.edu.scujcc.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,7 +10,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @author dell
  *
  */
-public class Comment {
+public class Comment implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9025921434272724054L;
 	private String content;
 	private String author;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

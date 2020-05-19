@@ -1,22 +1,29 @@
 package cn.edu.scujcc.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * 用户模型类
  * @author dell
  *
  */
-public class User {
+public class User implements Serializable {
+	private static final long serialVersionUID = 8425746230705180748L;
+	public static final String CACHE_NAME = "users";
 	@Id
 	private String id;
 	private String username;
 	private String password;
 	private String phone;
 	private String gender;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date birthday;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date lastLogin;
 	private String lastIp;
 	public String getId() {
@@ -131,5 +138,4 @@ public class User {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", phone=" + phone + ", gender="
 				+ gender + ", birthday=" + birthday + ", lastLogin=" + lastLogin + ", lastIp=" + lastIp + "]";
 	}
-	
 }
